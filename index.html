@@ -8,7 +8,7 @@
     body {
       margin: 0;
       overflow: hidden;
-      background: url('微信图片_20250322194934.jpg') no-repeat center center fixed;
+      background: url('background.jpg') no-repeat center center fixed;
       background-size: cover;
       font-family: 'Arial', sans-serif;
     }
@@ -37,13 +37,17 @@
       white-space: nowrap;
       font-size: 24px;
       font-weight: bold;
-      animation: move 10s linear forwards;
+      animation: moveLeft 10s linear forwards;
       text-shadow: 0 0 10px white;
     }
 
-    @keyframes move {
-      from { transform: translateX(100%); }
-      to { transform: translateX(-100%); }
+    @keyframes moveLeft {
+      0% {
+        transform: translateX(100%);
+      }
+      100% {
+        transform: translateX(-100%);
+      }
     }
 
     #anniversary {
@@ -67,8 +71,10 @@
   <canvas id="heartCanvas"></canvas>
   <div id="anniversary">今天是我们在一起的第 350 天 💑</div>
   <div id="barrageContainer"></div>
+
+  <!-- 🎵 自动播放背景音乐（林俊杰 - 第几个一百天） -->
   <audio id="bgMusic" autoplay loop>
-    <source src="https://music.163.com/song/media/outer/url?id=1330348068.mp3" type="audio/mpeg">
+    <source src="100days.mp3" type="audio/mpeg" />
   </audio>
 
   <script>
@@ -77,7 +83,14 @@
     canvas.width = window.innerWidth;
     canvas.height = window.innerHeight;
 
-    function drawHeart(x, y, size, color = "red") {
+    // 🎨 随机颜色（粉色、红色、紫色）
+    function getRandomColor() {
+      const colors = ["#ff69b4", "#ff1493", "#ff0000", "#800080"];
+      return colors[Math.floor(Math.random() * colors.length)];
+    }
+
+    // 💓 爱心绘制
+    function drawHeart(x, y, size, color) {
       ctx.beginPath();
       ctx.moveTo(x, y);
       ctx.bezierCurveTo(x, y - size / 2, x - size, y - size / 2, x - size, y);
@@ -95,13 +108,14 @@
         let x = canvas.width / 2 + Math.sin(time + i) * 100;
         let y = canvas.height / 2 + Math.cos(time + i) * 100;
         let size = 10 + Math.sin(time + i * 1.5) * 5;
-        drawHeart(x, y, size);
+        let color = getRandomColor();
+        drawHeart(x, y, size, color);
       }
       requestAnimationFrame(animateHearts);
     }
     animateHearts();
 
-    // 弹幕
+    // 💬 弹幕
     function createBarrage(text) {
       const barrage = document.createElement("div");
       barrage.className = "barrage";
@@ -116,12 +130,7 @@
       createBarrage("可可我爱你，永远在一起 ❤️");
     }, 800);
 
-    function getRandomColor() {
-      const colors = ["#ff69b4", "#ffb6c1", "#fff", "#f08080", "#ff1493"];
-      return colors[Math.floor(Math.random() * colors.length)];
-    }
-
-    // 爱心爆炸粒子
+    // 💥 点击爆炸粒子效果
     const particles = [];
 
     canvas.addEventListener("click", (e) => {
@@ -132,7 +141,8 @@
           size: Math.random() * 8 + 2,
           speedX: (Math.random() - 0.5) * 6,
           speedY: (Math.random() - 0.5) * 6,
-          alpha: 1
+          alpha: 1,
+          color: getRandomColor()
         });
       }
     });
@@ -145,12 +155,28 @@
         if (p.alpha <= 0) {
           particles.splice(index, 1);
         } else {
-          drawHeart(p.x, p.y, p.size, `rgba(255,0,0,${p.alpha})`);
+          drawHeart(p.x, p.y, p.size, `rgba(${hexToRgb(p.color)},${p.alpha})`);
         }
       });
       requestAnimationFrame(animateParticles);
     }
     animateParticles();
+
+    function hexToRgb(hex) {
+      const bigint = parseInt(hex.slice(1), 16);
+      const r = (bigint >> 16) & 255;
+      const g = (bigint >> 8) & 255;
+      const b = bigint & 255;
+      return `${r},${g},${b}`;
+    }
+
+    // 📱 自动播放兼容（移动端点击激活音乐）
+    document.addEventListener("click", () => {
+      const bgm = document.getElementById("bgMusic");
+      if (bgm.paused) {
+        bgm.play();
+      }
+    });
   </script>
 </body>
 </html>
