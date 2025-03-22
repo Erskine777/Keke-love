@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>可可我爱你 ❤️</title>
+  <style>
+    body {
+      margin: 0;
+      overflow: hidden;
+      background: url('微信图片_20250322194934.jpg') no-repeat center center fixed;
+      background-size: cover;
+      font-family: 'Arial', sans-serif;
+    }
+
+    #heartCanvas {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      z-index: 1;
+    }
+
+    #barrageContainer {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      z-index: 2;
+    }
+
+    .barrage {
+      position: absolute;
+      white-space: nowrap;
+      font-size: 24px;
+      font-weight: bold;
+      animation: move 10s linear forwards;
+      text-shadow: 0 0 10px white;
+    }
+
+    @keyframes move {
+      from { transform: translateX(100%); }
+      to { transform: translateX(-100%); }
+    }
+
+    #anniversary {
+      position: fixed;
+      top: 20px;
+      width: 100%;
+      text-align: center;
+      z-index: 3;
+      font-size: 28px;
+      color: #fff;
+      font-weight: bold;
+      text-shadow: 0 0 10px red;
+    }
+
+    audio {
+      display: none;
+    }
+  </style>
+</head>
+<body>
+  <canvas id="heartCanvas"></canvas>
+  <div id="anniversary">今天是我们在一起的第 350 天 💑</div>
+  <div id="barrageContainer"></div>
+  <audio id="bgMusic" autoplay loop>
+    <source src="https://music.163.com/song/media/outer/url?id=1330348068.mp3" type="audio/mpeg">
+  </audio>
+
+  <script>
+    const canvas = document.getElementById("heartCanvas");
+    const ctx = canvas.getContext("2d");
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+
+    function drawHeart(x, y, size, color = "red") {
+      ctx.beginPath();
+      ctx.moveTo(x, y);
+      ctx.bezierCurveTo(x, y - size / 2, x - size, y - size / 2, x - size, y);
+      ctx.bezierCurveTo(x - size, y + size, x, y + size * 1.5, x, y + size * 2);
+      ctx.bezierCurveTo(x, y + size * 1.5, x + size, y + size, x + size, y);
+      ctx.bezierCurveTo(x + size, y - size / 2, x, y - size / 2, x, y);
+      ctx.fillStyle = color;
+      ctx.fill();
+    }
+
+    function animateHearts() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      const time = Date.now() / 500;
+      for (let i = 0; i < 10; i++) {
+        let x = canvas.width / 2 + Math.sin(time + i) * 100;
+        let y = canvas.height / 2 + Math.cos(time + i) * 100;
+        let size = 10 + Math.sin(time + i * 1.5) * 5;
+        drawHeart(x, y, size);
+      }
+      requestAnimationFrame(animateHearts);
+    }
+    animateHearts();
+
+    // 弹幕
+    function createBarrage(text) {
+      const barrage = document.createElement("div");
+      barrage.className = "barrage";
+      barrage.style.top = `${Math.random() * 80}%`;
+      barrage.style.color = getRandomColor();
+      barrage.textContent = text;
+      document.getElementById("barrageContainer").appendChild(barrage);
+      setTimeout(() => barrage.remove(), 10000);
+    }
+
+    setInterval(() => {
+      createBarrage("可可我爱你，永远在一起 ❤️");
+    }, 800);
+
+    function getRandomColor() {
+      const colors = ["#ff69b4", "#ffb6c1", "#fff", "#f08080", "#ff1493"];
+      return colors[Math.floor(Math.random() * colors.length)];
+    }
+
+    // 爱心爆炸粒子
+    const particles = [];
+
+    canvas.addEventListener("click", (e) => {
+      for (let i = 0; i < 20; i++) {
+        particles.push({
+          x: e.clientX,
+          y: e.clientY,
+          size: Math.random() * 8 + 2,
+          speedX: (Math.random() - 0.5) * 6,
+          speedY: (Math.random() - 0.5) * 6,
+          alpha: 1
+        });
+      }
+    });
+
+    function animateParticles() {
+      particles.forEach((p, index) => {
+        p.x += p.speedX;
+        p.y += p.speedY;
+        p.alpha -= 0.01;
+        if (p.alpha <= 0) {
+          particles.splice(index, 1);
+        } else {
+          drawHeart(p.x, p.y, p.size, `rgba(255,0,0,${p.alpha})`);
+        }
+      });
+      requestAnimationFrame(animateParticles);
+    }
+    animateParticles();
+  </script>
+</body>
+</html>
